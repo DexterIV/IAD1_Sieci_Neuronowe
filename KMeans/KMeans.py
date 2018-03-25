@@ -1,6 +1,7 @@
 from DataStructure.Cluster import Cluster
 from DataStructure.Neuron import Neuron
 from DataStructure.Data import Data
+from multiprocessing import Process
 
 import pandas as pd
 import copy
@@ -10,7 +11,7 @@ import math
 
 class KMeans:
     def __init__(self, number_of_clusters=3, max_iterations=128, absolute_tolerance=0.000001,
-                 little_data_threshold=0.03):
+                 little_data_threshold=0.015):
         self.clusters = []
         self.numberOfClusters = number_of_clusters
         self.maxIterations = max_iterations
@@ -34,7 +35,7 @@ class KMeans:
     def initialize_centroids(self):
         for i in range(self.numberOfClusters):
             import random
-            neurons_position = copy.deepcopy(self.data[random.randint(0, len(self.data))])
+            neurons_position = copy.deepcopy(self.data[random.randint(0, len(self.data) - 1)])
             neuron = Neuron(neurons_position)
             self.clusters.append(Cluster(neuron))
 
@@ -49,23 +50,24 @@ class KMeans:
                 for k in range(len(self.clusters[j].data)):
                     movement_vector = [0] * len(self.data[0].values)
                     for l in range(len(self.data[0].values)):
-                        movement_vector[l] += KMeans.distance\
-                                                (self.clusters[j].neuron.position, self.clusters[j].data[k])
+                        movement_vector[l] += KMeans.distance(self.clusters[j].neuron.position,
+                                                              self.clusters[j].data[k])
                 for l in range(len(movement_vector)):
                     movement_vector[l] /= len(self.clusters[j].data)
                     self.clusters[j].previousNeuron = copy.deepcopy(self.clusters[j].neuron)
                     self.clusters[j].neuron.position.values[l] += movement_vector[l]
-            if i % 8 == 0:
-                KMeans._plot_all_clusters(self.clusters)
+            if i % 63 == 0:
+                KMeans._plot_all_clusters(self.clusters, i)
             self._reassign_clusters_with_little_data()
             if self._second_stop_condition():
                 break
+
 
     def _reassign_clusters_with_little_data(self):
         import random
         for i in range(self.numberOfClusters):
             if len(self.clusters[i].data) <= self.littleDataThreshold * len(self.data):
-                self.clusters[i].neuron.position = self.data[random.randint(len(self.data))]
+                self.clusters[i].neuron.position = self.data[random.randint(0, len(self.data) - 1)]
 
     @staticmethod
     def distance(position1, position2):
@@ -98,20 +100,21 @@ class KMeans:
         for j in range(len(cluster.data)):
             x.append(cluster.data[j].values[value_x_index])
             y.append(cluster.data[j].values[value_y_index])
-        pyplot.plot(x, y, color + 'o')
+        pyplot.plot(x, y, color + 'x')
         pyplot.plot(cluster.neuron.position.values[value_x_index],
                     cluster.neuron.position.values[value_y_index],
-                    'rx')
+                    'ro')
 
     @staticmethod
-    def _plot_all_clusters(clusters):
+    def _plot_all_clusters(clusters, iteration):
         pyplot.figure(1)
+        pyplot.title('iteration no. ' + str(iteration + 1))
         colors = ['b', 'g', 'y']
         for j in range(len(clusters)):
             KMeans._plot_cluster(clusters[j], colors[j], 0, 1)
         pyplot.grid(axis='both', color='black', which='major', linestyle='--', linewidth=1)
-        pyplot.show()
         pyplot.figure(2)
+        pyplot.title('iteration no. ' + str(iteration + 1))
         for j in range(len(clusters)):
             KMeans._plot_cluster(clusters[j], colors[j], 2, 3)
         pyplot.grid(axis='both', color='black', which='major', linestyle='--', linewidth=1)
