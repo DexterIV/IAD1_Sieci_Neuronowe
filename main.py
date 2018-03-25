@@ -1,4 +1,4 @@
-from KMeans import KMeans
+from KMeans.KMeans import KMeans
 
 
 kmeans_algorithm = KMeans(3)

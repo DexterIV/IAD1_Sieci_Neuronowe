@@ -1,6 +1,6 @@
-from Cluster import Cluster
-from Neuron import Neuron
-from Data import Data
+from DataStructure.Cluster import Cluster
+from DataStructure.Neuron import Neuron
+from DataStructure.Data import Data
 
 import pandas as pd
 import copy
