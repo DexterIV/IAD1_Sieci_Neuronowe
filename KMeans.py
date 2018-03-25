@@ -4,14 +4,16 @@ from Data import Data
 
 import pandas as pd
 import copy
+import matplotlib.pyplot as pyplot
+import math
 
 
 class KMeans:
-    def __init__(self, number_of_clusters=3, max_iterations=3, relative_tolerance=0.000001):
+    def __init__(self, number_of_clusters=3, max_iterations=128, relative_tolerance=0.000001):
         self.clusters = []
         self.numberOfClusters = number_of_clusters
         self.maxIterations = max_iterations
-        self.absoluteTolerance = relative_tolerance
+        self.relativeTolerance = relative_tolerance
         self.data = []
 
     def initialize_data(self, filename):
@@ -29,7 +31,8 @@ class KMeans:
 
     def initialize_centroids(self):
         for i in range(self.numberOfClusters):
-            neurons_position = copy.copy(self.data[i])
+            import random
+            neurons_position = copy.deepcopy(self.data[random.randint(0, len(self.data))])
             neuron = Neuron(neurons_position)
             self.clusters.append(Cluster(neuron))
 
@@ -44,18 +47,71 @@ class KMeans:
                 for k in range(len(self.clusters[j].data)):
                     movement_vector = [0] * len(self.data[0].values)
                     for l in range(len(self.data[0].values)):
-                        movement_vector[l] += self.clusters[j].data[k].distance_from_neuron(self.clusters[j].neuron)
+                        movement_vector[l] += KMeans.distance\
+                                                (self.clusters[j].neuron.position, self.clusters[j].data[k])
                 for l in range(len(movement_vector)):
                     movement_vector[l] /= len(self.clusters[j].data)
+                    self.clusters[j].previousNeuron = copy.deepcopy(self.clusters[j].neuron)
                     self.clusters[j].neuron.position.values[l] += movement_vector[l]
+            if i % 8 == 0:
+                self._plot_all_clusters()
+            if self._second_stop_condition():
+                break
+
+    @staticmethod
+    def distance(position1, position2):
+        distance = 0
+
+        if len(position1.values) != len(position2.values):
+            return -1.0
+
+        for i in range(len(position1.values)):
+            distance += (position1.values[i] - position2.values[i]) ** 2
+
+        distance = math.sqrt(distance)
+        return distance
 
     def _find_minimum_distance(self, data_instance):
         index = 0
-        minimum = data_instance.distance_from_neuron(self.clusters[index].neuron)
+        minimum = self.distance(data_instance, self.clusters[index].neuron.position)
         for i in range(1, len(self.clusters)):
-            distance = data_instance.distance_from_neuron(self.clusters[i].neuron)
+            distance = KMeans.distance(self.clusters[i].neuron.position, data_instance)
             if distance < minimum:
                 minimum = distance
                 index = i
 
         return index
+
+    @staticmethod
+    def _plot_cluster(cluster, color, value_x_index, value_y_index):
+        x = []
+        y = []
+        for j in range(len(cluster.data)):
+            x.append(cluster.data[j].values[value_x_index])
+            y.append(cluster.data[j].values[value_y_index])
+        pyplot.plot(x, y, color + 'o')
+        pyplot.plot(cluster.neuron.position.values[value_x_index],
+                    cluster.neuron.position.values[value_y_index],
+                    'rx')
+
+    def _plot_all_clusters(self):
+        pyplot.figure(1)
+        colors = ['b', 'g', 'y']
+        for j in range(len(self.clusters)):
+            KMeans._plot_cluster(self.clusters[j], colors[j], 0, 1)
+        pyplot.grid(axis='both', color='black', which='major', linestyle='--', linewidth=1)
+        pyplot.show()
+        pyplot.figure(2)
+        for j in range(len(self.clusters)):
+            KMeans._plot_cluster(self.clusters[j], colors[j], 2, 3)
+        pyplot.grid(axis='both', color='black', which='major', linestyle='--', linewidth=1)
+        pyplot.show()
+
+    def _second_stop_condition(self):
+        result = True
+        for i in range(self.numberOfClusters):
+            if KMeans.distance(self.clusters[i].neuron.position,
+                               self.clusters[i].previousNeuron.position) > self.relativeTolerance:
+                result = False
+
+        return result
