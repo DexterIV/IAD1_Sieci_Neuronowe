@@ -9,12 +9,14 @@ import math
 
 
 class KMeans:
-    def __init__(self, number_of_clusters=3, max_iterations=128, absolute_tolerance=0.000001):
+    def __init__(self, number_of_clusters=3, max_iterations=128, absolute_tolerance=0.000001,
+                 little_data_threshold=0.03):
         self.clusters = []
         self.numberOfClusters = number_of_clusters
         self.maxIterations = max_iterations
         self.absoluteTolerance = absolute_tolerance
         self.data = []
+        self.littleDataThreshold = little_data_threshold
 
     def initialize_data(self, filename):
         self.data.clear()
@@ -54,9 +56,16 @@ class KMeans:
                     self.clusters[j].previousNeuron = copy.deepcopy(self.clusters[j].neuron)
                     self.clusters[j].neuron.position.values[l] += movement_vector[l]
             if i % 8 == 0:
-                self._plot_all_clusters()
+                KMeans._plot_all_clusters(self.clusters)
+            self._reassign_clusters_with_little_data()
             if self._second_stop_condition():
                 break
+
+    def _reassign_clusters_with_little_data(self):
+        import random
+        for i in range(self.numberOfClusters):
+            if len(self.clusters[i].data) <= self.littleDataThreshold * len(self.data):
+                self.clusters[i].neuron.position = self.data[random.randint(len(self.data))]
 
     @staticmethod
     def distance(position1, position2):
@@ -94,16 +103,17 @@ class KMeans:
                     cluster.neuron.position.values[value_y_index],
                     'rx')
 
-    def _plot_all_clusters(self):
+    @staticmethod
+    def _plot_all_clusters(clusters):
         pyplot.figure(1)
         colors = ['b', 'g', 'y']
-        for j in range(len(self.clusters)):
-            KMeans._plot_cluster(self.clusters[j], colors[j], 0, 1)
+        for j in range(len(clusters)):
+            KMeans._plot_cluster(clusters[j], colors[j], 0, 1)
         pyplot.grid(axis='both', color='black', which='major', linestyle='--', linewidth=1)
         pyplot.show()
         pyplot.figure(2)
-        for j in range(len(self.clusters)):
-            KMeans._plot_cluster(self.clusters[j], colors[j], 2, 3)
+        for j in range(len(clusters)):
+            KMeans._plot_cluster(clusters[j], colors[j], 2, 3)
         pyplot.grid(axis='both', color='black', which='major', linestyle='--', linewidth=1)
         pyplot.show()
 
