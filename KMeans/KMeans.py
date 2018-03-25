@@ -10,7 +10,7 @@ import math
 
 
 class KMeans:
-    def __init__(self, number_of_clusters=3, max_iterations=128, absolute_tolerance=0.000001,
+    def __init__(self, number_of_clusters=3, max_iterations=256, absolute_tolerance=0.000001,
                  little_data_threshold=0.015):
         self.clusters = []
         self.numberOfClusters = number_of_clusters
@@ -41,27 +41,38 @@ class KMeans:
 
     def algorithm(self):
         for i in range(self.maxIterations):
-            for j in range(len(self.data)):
-                closest_centroid_index = self._find_minimum_distance(self.data[j])
-                self.clusters[closest_centroid_index].data.append(self.data[j])
-            for j in range(self.numberOfClusters):
-                movement_vector = []
-                movement_vector.clear()
-                for k in range(len(self.clusters[j].data)):
-                    movement_vector = [0] * len(self.data[0].values)
-                    for l in range(len(self.data[0].values)):
-                        movement_vector[l] += KMeans.distance(self.clusters[j].neuron.position,
-                                                              self.clusters[j].data[k])
-                for l in range(len(movement_vector)):
-                    movement_vector[l] /= len(self.clusters[j].data)
-                    self.clusters[j].previousNeuron = copy.deepcopy(self.clusters[j].neuron)
-                    self.clusters[j].neuron.position.values[l] += movement_vector[l]
-            if i % 63 == 0:
+            self._assign_data_to_centroids()
+            self._move_centroids()
+            if (i + 1) % 64 == 0:
                 KMeans._plot_all_clusters(self.clusters, i)
             self._reassign_clusters_with_little_data()
+            KMeans._clear_clusters(self.clusters)
             if self._second_stop_condition():
                 break
 
+    def _assign_data_to_centroids(self):
+        for j in range(len(self.data)):
+            closest_centroid_index = self._find_minimum_distance (self.data[j])
+            self.clusters[closest_centroid_index].data.append (self.data[j])
+
+    def _move_centroids(self):
+        for j in range(self.numberOfClusters):
+            movement_vector = []
+            movement_vector.clear ()
+            for k in range(len(self.clusters[j].data)):
+                movement_vector = [0] * len (self.data[0].values)
+                for l in range(len(self.data[0].values)):
+                    movement_vector[l] += KMeans.distance (self.clusters[j].neuron.position,
+                                                           self.clusters[j].data[k])
+            for l in range(len(movement_vector)):
+                movement_vector[l] /= len (self.clusters[j].data)
+                self.clusters[j].previousNeuron = copy.deepcopy(self.clusters[j].neuron)
+                self.clusters[j].neuron.position.values[l] += movement_vector[l]
+
+    @staticmethod
+    def _clear_clusters(clusters):
+        for i in range(len(clusters)):
+            clusters[i].data.clear()
 
     def _reassign_clusters_with_little_data(self):
         import random
@@ -102,19 +113,19 @@ class KMeans:
             y.append(cluster.data[j].values[value_y_index])
         pyplot.plot(x, y, color + 'x')
         pyplot.plot(cluster.neuron.position.values[value_x_index],
-                    cluster.neuron.position.values[value_y_index],
-                    'ro')
+                  cluster.neuron.position.values[value_y_index],
+                  'ro')
 
     @staticmethod
     def _plot_all_clusters(clusters, iteration):
-        pyplot.figure(1)
-        pyplot.title('iteration no. ' + str(iteration + 1))
-        colors = ['b', 'g', 'y']
+        pyplot.figure('KMeans algorithm')
+        pyplot.subplot(211)
+        colors = ['b', 'g', 'm']
         for j in range(len(clusters)):
             KMeans._plot_cluster(clusters[j], colors[j], 0, 1)
+        pyplot.title ('iteration no. ' + str (iteration + 1))
         pyplot.grid(axis='both', color='black', which='major', linestyle='--', linewidth=1)
-        pyplot.figure(2)
-        pyplot.title('iteration no. ' + str(iteration + 1))
+        pyplot.subplot(212)
         for j in range(len(clusters)):
             KMeans._plot_cluster(clusters[j], colors[j], 2, 3)
         pyplot.grid(axis='both', color='black', which='major', linestyle='--', linewidth=1)
