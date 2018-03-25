@@ -9,11 +9,11 @@ import math
 
 
 class KMeans:
-    def __init__(self, number_of_clusters=3, max_iterations=128, relative_tolerance=0.000001):
+    def __init__(self, number_of_clusters=3, max_iterations=128, absolute_tolerance=0.000001):
         self.clusters = []
         self.numberOfClusters = number_of_clusters
         self.maxIterations = max_iterations
-        self.relativeTolerance = relative_tolerance
+        self.absoluteTolerance = absolute_tolerance
         self.data = []
 
     def initialize_data(self, filename):
@@ -111,7 +111,7 @@ class KMeans:
         result = True
         for i in range(self.numberOfClusters):
             if KMeans.distance(self.clusters[i].neuron.position,
-                               self.clusters[i].previousNeuron.position) > self.relativeTolerance:
+                               self.clusters[i].previousNeuron.position) > self.absoluteTolerance:
                 result = False
 
         return result
