@@ -2,6 +2,7 @@ from UniversalFunctions import *
 from DataStructure.Neuron import Neuron
 from DataStructure.Data import Data
 
+
 class Cluster:
 
     def __init__(self, neuron):
