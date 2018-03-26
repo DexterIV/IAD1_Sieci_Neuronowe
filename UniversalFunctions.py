@@ -40,7 +40,7 @@ def plot_cluster(cluster, color, value_x_index, value_y_index):
 def plot_all_clusters(clusters, iteration):
     pyplot.figure('KMeans algorithm')
     pyplot.subplot(211)
-    colors = ['b', 'g', 'm']
+    colors = ['b', 'g', 'm', 'c', 'k', 'burlywood', 'Olive', 'fuchsia', 'aqua']
     for j in range(len(clusters)):
         plot_cluster(clusters[j], colors[j], 0, 1)
     pyplot.title('iteration no. ' + str(iteration + 1))
