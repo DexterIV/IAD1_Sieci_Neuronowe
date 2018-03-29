@@ -42,11 +42,11 @@ class KMeans:
             self._assign_data_to_clusters()
             self._move_centroids()
             if i % 2 == 0:
-                plot_all_clusters(self.clusters, i)
+                plot_all_clusters(self.clusters, i, 'KMeans algorithm')
             self._reassign_clusters_with_little_data()
             if self._second_stop_condition():
                 break
-        plot_all_clusters(self.clusters, i)
+        plot_all_clusters(self.clusters, i, 'KMeans algorithm')
 
     def _assign_data_to_clusters(self):
         for j in range(len(self.data)):
