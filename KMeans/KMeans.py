@@ -1,10 +1,8 @@
 from DataStructure.Cluster import Cluster
 from DataStructure.Neuron import Neuron
 from DataStructure.Data import Data
-
 from UniversalFunctions import *
 import pandas as pd
-import matplotlib.pyplot as pyplot
 
 
 class KMeans:
