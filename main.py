@@ -6,7 +6,7 @@ kmeans_algorithm = KMeans(3)
 #kmeans_algorithm.initialize_centroids()
 #kmeans_algorithm.algorithm()
 
-kohonen_algorithm = Kohonen(3)
+kohonen_algorithm = Kohonen()
 kohonen_algorithm.initialize_data("iris.csv")
 kohonen_algorithm.initialize_neurons()
 kohonen_algorithm.algorithm()

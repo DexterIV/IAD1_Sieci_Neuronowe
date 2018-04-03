@@ -10,11 +10,8 @@ def copy_values(source, target):
 def distance(position1, position2):
     dist = 0
 
-    if len(position1.values) != len(position2.values):
-            return -1.0
-
-    for i in range(len(position1.values)):
-        dist += (position1.values[i] - position2.values[i]) ** 2
+    for i in range(len(position1)):
+        dist += (position1[i] - position2[i]) ** 2
 
     dist = math.sqrt(dist)
     return dist
@@ -32,8 +29,8 @@ def plot_cluster(cluster, color, value_x_index, value_y_index):
         x.append(cluster.data[j].values[value_x_index])
         y.append(cluster.data[j].values[value_y_index])
     pyplot.plot(x, y, color + 'x')
-    pyplot.plot(cluster.neuron.position.values[value_x_index],
-                cluster.neuron.position.values[value_y_index],
+    pyplot.plot(cluster.centroid.position.values[value_x_index],
+                cluster.centroid.position.values[value_y_index],
                 'ro')
 
 

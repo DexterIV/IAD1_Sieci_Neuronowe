@@ -1,5 +1,5 @@
 from DataStructure.Cluster import Cluster
-from DataStructure.Neuron import Neuron
+from DataStructure.Centroid import Centroid
 from DataStructure.Data import Data
 from UniversalFunctions import *
 import pandas as pd
@@ -31,9 +31,9 @@ class KMeans:
     def initialize_centroids(self):
         for i in range(self.numberOfClusters):
             import random
-            neurons_position = Data(self.data[random.randint(0, len(self.data) - 1)].values)
-            neuron = Neuron(neurons_position)
-            self.clusters.append(Cluster(neuron))
+            centroids_position = Data(self.data[random.randint(0, len(self.data) - 1)].values)
+            centroid = Centroid(centroids_position)
+            self.clusters.append(Cluster(centroid, True))
 
     def algorithm(self):
         i = 0
@@ -55,8 +55,8 @@ class KMeans:
 
     def _move_centroids(self):
         for i in range(len(self.clusters)):
-            copy_values(self.clusters[i].neuron.position.values,
-                        self.clusters[i].previous_neuron.position.values)
+            copy_values(self.clusters[i].centroid.position.values,
+                        self.clusters[i].previous_centroid.position.values)
             new_centroid_position = []
             new_centroid_position.clear()
             new_centroid_position = [0] * len(self.data[0].values)
@@ -64,19 +64,19 @@ class KMeans:
                 for k in range(len(self.clusters[i].data)):
                     new_centroid_position[j] += self.clusters[i].data[k].values[j]
                 new_centroid_position[j] /= len(self.clusters[i].data)
-            copy_values(new_centroid_position, self.clusters[i].neuron.position.values)
+            copy_values(new_centroid_position, self.clusters[i].centroid.position.values)
 
     def _reassign_clusters_with_little_data(self):
         import random
         for i in range(self.numberOfClusters):
             if len(self.clusters[i].data) <= self.littleDataThreshold * len(self.data):
-                self.clusters[i].neuron.position = self.data[random.randint(0, len(self.data) - 1)]
+                self.clusters[i].centroid.position = self.data[random.randint(0, len(self.data) - 1)]
 
     def _find_minimum_distance(self, data_instance):
         index = 0
-        minimum = distance(data_instance, self.clusters[index].neuron.position)
+        minimum = distance(data_instance, self.clusters[index].centroid.position)
         for i in range(1, len(self.clusters)):
-            dist = distance(self.clusters[i].neuron.position, data_instance)
+            dist = distance(self.clusters[i].centroid.position, data_instance)
             if dist < minimum:
                 minimum = dist
                 index = i
@@ -86,8 +86,8 @@ class KMeans:
     def _second_stop_condition(self):
         result = True
         for i in range(self.numberOfClusters):
-            if distance(self.clusters[i].neuron.position,
-                        self.clusters[i].previous_neuron.position) > self.absoluteTolerance:
+            if distance(self.clusters[i].centroid.position,
+                        self.clusters[i].previous_centroid.position) > self.absoluteTolerance:
                 result = False
 
         return result

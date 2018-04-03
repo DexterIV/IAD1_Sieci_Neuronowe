@@ -7,13 +7,16 @@ import math
 
 
 class Kohonen:
-    def __init__(self, number_of_clusters=3, max_iterations=128, learning_grade=0.05, _lambda=0.5, absolute_tolerance=0.000001):
-        self.numberOfClusters = number_of_clusters
+    def __init__(self, number_of_neurons=6, max_iterations=128, learning_grade=0.5, _lambda=20,
+                 neighbourhood_radius=1.5):
+        self.numberOfNeurons = number_of_neurons
         self.maxIterations = max_iterations
         self.data = []
         self.neurons = []
-        self.absolute_tolerance = absolute_tolerance
+        self.initial_learning_grade = learning_grade
         self.learning_grade = learning_grade
+        self.initial_neighbourhood_radius = neighbourhood_radius
+        self.neighbourhood_radius = neighbourhood_radius
         self.wage_lambda = _lambda
 
     def initialize_data(self, filename):
@@ -30,69 +33,86 @@ class Kohonen:
             self.data.append(Data(values))
 
     def initialize_neurons(self):
-        for i in range(self.numberOfClusters):
-            import random
-            neurons_position = Data(self.data[random.randint(0, len(self.data) - 1)].values)
-            self.neurons.append(Neuron(neurons_position))
+        import random
+        for i in range(self.numberOfNeurons):
+            self.neurons.append(Neuron(i, self.data[random.randint(0, len(self.data) - 1)]))
 
     def wage_function(self, _distance):
-        return math.exp(-(_distance ** 2) / (2 * self.wage_lambda))
+        return math.exp(-(_distance ** 2) / (2 * (self.neighbourhood_radius ** 2)))
+
+    def neighbourhood_decay(self, iteration):
+        self.neighbourhood_radius = self.initial_neighbourhood_radius * math.exp(- iteration / self.wage_lambda)
+
+    def learning_grade_decay(self, iteration):
+        self.learning_grade = self.initial_learning_grade * math.exp(- iteration / self.wage_lambda)
 
     def algorithm(self):
+        import random
         i = 0
         for i in range(self.maxIterations):
-            oldNeurons = []
+            sample = self.data[random.randint(0, len(self.data) - 1)]
+            BMU = self.neurons[self._find_minimum_distance(sample)]
             for j in range(len(self.neurons)):
-                tmp_values = [0] * len(self.neurons[j].position.values)
-                tmp_position = Data(tmp_values)
-                copy_values(self.neurons[j].position.values, tmp_position.values)
-                oldNeurons.append(Neuron(tmp_position))
-                for k in range(len(self.data)):
-                    for l in range(len(self.neurons[j].position.values)):
-                        movement_vector = self.calculate_movement_vector(self.neurons[j], self.data[k])
-                        self.neurons[j].position.values[l] += movement_vector[l]
+                self._calculate_new_weights(self.neurons[j], BMU, sample)
+            self.learning_grade_decay(i)
+            self.neighbourhood_decay(i)
             if i % 2 == 0:
-                clusters = self.define_clusters_for_plotting()
-                plot_all_clusters(clusters, i, 'Kohonen\'s net algorithm')
-            if self._second_stop_condition(oldNeurons):
-                break
-            oldNeurons.clear()
-        clusters = self.define_clusters_for_plotting()
-        plot_all_clusters(clusters, i, 'Kohonen\'s net algorithm')
+                self._plot_result(i)
+        self._plot_result(i)
 
-    def calculate_movement_vector(self, neuron, data_instance):
-        vector = []
-        for i in range(len(neuron.position.values)):
-            tmp = data_instance.values[i] - neuron.position.values[i]
-            tmp = self.learning_grade * self.wage_function(tmp)
-            vector.append(tmp)
-        return vector
-
-    def define_clusters_for_plotting(self):
-        clusters = []
-        for i in range(len(self.neurons)):
-            clusters.append(Cluster(self.neurons[i]))
-        for j in range(len(self.data)):
-            closest_centroid_index = self._find_minimum_distance(self.data[j])
-            clusters[closest_centroid_index].data.append(self.data[j])
-        return clusters
+    def _calculate_new_weights(self, neuron, BMU, sample):
+        if neuron == BMU:
+            for i in range(len(neuron.weights)):
+                BMU.weights[i] += self.learning_grade * (sample.values[i] - BMU.weights[i])
+        else:
+            dist = abs(neuron.position - BMU.position)
+            if dist < self.neighbourhood_radius:
+                for i in range(len(neuron.weights)):
+                    neuron.weights[i] += self.learning_grade * (sample.values[i] - neuron.weights[i]) * \
+                                        self.wage_function(dist)
 
     def _find_minimum_distance(self, data_instance):
         index = 0
-        minimum = distance(data_instance, self.neurons[index].position)
+        minimum = distance(data_instance.values, self.neurons[0].weights)
         for i in range(1, len(self.neurons)):
-            dist = distance(self.neurons[i].position, data_instance)
+            dist = distance(self.neurons[i].weights, data_instance.values)
             if dist < minimum:
                 minimum = dist
                 index = i
 
         return index
 
-    def _second_stop_condition(self, old_neurons):
-        result = True
-        for i in range(self.numberOfClusters):
-            if distance(self.neurons[i].position,
-                        old_neurons[i].position) > self.absolute_tolerance:
-                result = False
+    def _define_clusters_for_plotting(self):
+        clusters = []
+        for i in range(len(self.neurons)):
+            clusters.append(Cluster(self.neurons[i], False))
+        for j in range(len(self.data)):
+            closest_neuron_index = self._find_minimum_distance(self.data[j])
+            clusters[closest_neuron_index].data.append(self.data[j])
+        return clusters
 
-        return result
+    def _plot_result(self, iteration):
+        clusters = self._define_clusters_for_plotting()
+        pyplot.figure('Kohonen\'s self-organizing map')
+        pyplot.subplot(211)
+        colors = ['b', 'g', 'c', 'xkcd:orchid', 'y', 'k', 'tab:olive', 'tab:pink', 'xkcd:coral', 'xkcd:indigo']
+        for j in range (len (clusters)):
+            self._plot_cluster (clusters[j], colors[j], 0, 1)
+        pyplot.title('iteration no. ' + str (iteration + 1))
+        pyplot.grid(axis='both', color='black', which='major', linestyle='--', linewidth=1)
+        pyplot.subplot(212)
+        for j in range (len(clusters)):
+            self._plot_cluster(clusters[j], colors[j], 2, 3)
+        pyplot.grid(axis='both', color='black', which='major', linestyle='--', linewidth=1)
+        pyplot.show()
+
+    def _plot_cluster(self, cluster, color, value_x_index, value_y_index):
+        x = []
+        y = []
+        for j in range(len(cluster.data)):
+            x.append(cluster.data[j].values[value_x_index])
+            y.append(cluster.data[j].values[value_y_index])
+        pyplot.plot(x, y, color=color, marker='x', linestyle='None')
+        pyplot.plot(cluster.centroid.weights[value_x_index],
+                    cluster.centroid.weights[value_y_index],
+                    'ro')
