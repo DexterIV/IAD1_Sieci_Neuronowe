@@ -16,17 +16,19 @@ class KMeans:
         self.littleDataThreshold = little_data_threshold
 
     def initialize_data(self, filename):
-        self.data.clear()
-        dataset = pd.read_csv(filename)
+        self.data.clear ()
+        dataset = pd.read_csv (filename)
+        number_of_columns = len (dataset.columns)
+        data_attributes = []
 
-        sepal_length = dataset.iloc[:, 1].values
-        sepal_width = dataset.iloc[:, 2].values
-        petal_length = dataset.iloc[:, 3].values
-        petal_width = dataset.iloc[:, 4].values
+        for i in range (1, number_of_columns - 1):
+            data_attributes.append (dataset.iloc[:, i].values)
 
-        for i in range(len(sepal_length)):
-            values = [sepal_length[i], sepal_width[i], petal_length[i], petal_width[i]]
-            self.data.append(Data(values))
+        for i in range (len (data_attributes[0])):
+            values = []
+            for j in range (len (data_attributes)):
+                values.append (data_attributes[j][i])
+            self.data.append (Data (values))
 
     def initialize_centroids(self):
         for i in range(self.numberOfClusters):
@@ -35,18 +37,18 @@ class KMeans:
             centroid = Centroid(centroids_position)
             self.clusters.append(Cluster(centroid, True))
 
-    def algorithm(self):
+    def algorithm(self, plotting_frequency):
         i = 0
         for i in range(self.maxIterations):
             clear_clusters(self.clusters)
             self._assign_data_to_clusters()
             self._move_centroids()
-            if i % 2 == 0:
-                plot_all_clusters(self.clusters, i, 'KMeans algorithm')
+            if i % plotting_frequency == 0:
+                plot_all_clusters(self.clusters, i, 'KMeans algorithm', len(self.data[0].values))
             self._reassign_clusters_with_little_data()
             if self._second_stop_condition():
                 break
-        plot_all_clusters(self.clusters, i, 'KMeans algorithm')
+        plot_all_clusters(self.clusters, i, 'KMeans algorithm', len(self.data[0].values))
 
     def _assign_data_to_clusters(self):
         for j in range(len(self.data)):
@@ -74,20 +76,19 @@ class KMeans:
 
     def _find_minimum_distance(self, data_instance):
         index = 0
-        minimum = distance(data_instance, self.clusters[index].centroid.position)
+        minimum = distance(data_instance.values, self.clusters[index].centroid.position.values)
         for i in range(1, len(self.clusters)):
-            dist = distance(self.clusters[i].centroid.position, data_instance)
+            dist = distance(self.clusters[i].centroid.position.values, data_instance.values)
             if dist < minimum:
                 minimum = dist
                 index = i
-
         return index
 
     def _second_stop_condition(self):
         result = True
         for i in range(self.numberOfClusters):
-            if distance(self.clusters[i].centroid.position,
-                        self.clusters[i].previous_centroid.position) > self.absoluteTolerance:
+            if distance(self.clusters[i].centroid.position.values,
+                        self.clusters[i].previous_centroid.position.values) > self.absoluteTolerance:
                 result = False
 
         return result
