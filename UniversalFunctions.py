@@ -40,13 +40,15 @@ def plot_centroid(cluster, color, value_x_index, value_y_index):
                 color, marker='o')
 
 
-def plot_cluster(clusters, color, neuron_color, value_x_index, value_y_index, neurons, index):
+def plot_cluster(clusters, color, neuron_color, value_x_index, value_y_index, neurons, index, xLabel, yLabel):
     x = []
     y = []
     for j in range(len(clusters[index].data)):
         x.append(clusters[index].data[j].values[value_x_index])
         y.append(clusters[index].data[j].values[value_y_index])
     pyplot.plot(x, y, color + 'x', markersize=5)
+    pyplot.xlabel(xLabel)
+    pyplot.ylabel(yLabel)
 
 
 def plot_centroids(clusters, value_x_index, value_y_index):
@@ -62,7 +64,7 @@ def plot_neurons(neurons, neuron_colors, value_x_index, value_y_index):
         plot_neurons_path(neuron_positions, neuron_colors[index], value_x_index, value_y_index)
 
 
-def plot_all_clusters(clusters, iteration, window_name, number_of_attributes, neurons):
+def plot_all_clusters(clusters, iteration, window_name, number_of_attributes, neurons, labels):
     pyplot.figure(window_name)
     colors = ['b', 'g', 'c', 'y', 'k', 'tab:olive', 'tab:pink', 'xkcd:coral', 'xkcd:indigo']
     neuron_colors = ['#d3d3d3', '#727272', '#8c95a3', '#bc93b9', '#000000']
@@ -74,9 +76,9 @@ def plot_all_clusters(clusters, iteration, window_name, number_of_attributes, ne
         pyplot.subplot(math.sqrt(number_of_subplots), 2, i / 2 + 1)
         for j in range(len(clusters)):
             if number_of_attributes == i + 1:
-                plot_cluster(clusters, colors[j], neuron_colors[j], i - 1, i, neurons, j)
+                plot_cluster(clusters, colors[j], neuron_colors[j], i - 1, i, neurons, j, labels[i - 1], labels[i])
             else:
-                plot_cluster(clusters, colors[j], neuron_colors[j], i, i + 1, neurons, j)
+                plot_cluster(clusters, colors[j], neuron_colors[j], i, i + 1, neurons, j, labels[i], labels[i + 1])
         if neurons is None:
             if number_of_attributes == i + 1:
                 plot_centroids(clusters, i - 1, i)

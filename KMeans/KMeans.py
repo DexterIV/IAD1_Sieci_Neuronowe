@@ -3,6 +3,7 @@ from DataStructure.Centroid import Centroid
 from DataStructure.Data import Data
 from UniversalFunctions import *
 import pandas as pd
+import numpy
 
 
 class KMeans:
@@ -14,21 +15,27 @@ class KMeans:
         self.absoluteTolerance = absolute_tolerance
         self.data = []
         self.littleDataThreshold = little_data_threshold
+        self.dataLabels = []
 
     def initialize_data(self, filename):
-        self.data.clear ()
-        dataset = pd.read_csv (filename)
-        number_of_columns = len (dataset.columns)
+        self.data.clear()
+        dataset_tmp = pd.read_csv(filename, header=None)
+        number_of_columns = len(dataset_tmp.columns)
         data_attributes = []
 
-        for i in range (1, number_of_columns - 1):
-            data_attributes.append (dataset.iloc[:, i].values)
+        for i in range(1, number_of_columns - 1):
+            self.dataLabels.append(dataset_tmp[i][0])
 
-        for i in range (len (data_attributes[0])):
+        dataset = pd.read_csv(filename)
+
+        for i in range(1, number_of_columns - 1):
+            data_attributes.append(dataset.iloc[:, i].values)
+
+        for i in range(1, len(data_attributes[0])):
             values = []
-            for j in range (len (data_attributes)):
-                values.append (data_attributes[j][i])
-            self.data.append (Data (values))
+            for j in range(len(data_attributes)):
+                values.append(data_attributes[j][i])
+            self.data.append(Data(values))
 
     def initialize_centroids(self):
         for i in range(self.numberOfClusters):
@@ -46,7 +53,7 @@ class KMeans:
             self._reassign_clusters_with_little_data()
             if self._second_stop_condition():
                 break
-        plot_all_clusters(self.clusters, i, 'KMeans algorithm', len(self.data[0].values), None)
+        plot_all_clusters(self.clusters, i, 'KMeans algorithm', len(self.data[0].values), None, self.dataLabels)
 
     def _assign_data_to_clusters(self):
         for j in range(len(self.data)):
