@@ -37,18 +37,16 @@ class KMeans:
             centroid = Centroid(centroids_position)
             self.clusters.append(Cluster(centroid, True))
 
-    def algorithm(self, plotting_frequency):
+    def algorithm(self):
         i = 0
         for i in range(self.maxIterations):
             clear_clusters(self.clusters)
             self._assign_data_to_clusters()
             self._move_centroids()
-            if i % plotting_frequency == 0:
-                plot_all_clusters(self.clusters, i, 'KMeans algorithm', len(self.data[0].values))
             self._reassign_clusters_with_little_data()
             if self._second_stop_condition():
                 break
-        plot_all_clusters(self.clusters, i, 'KMeans algorithm', len(self.data[0].values))
+        plot_all_clusters(self.clusters, i, 'KMeans algorithm', len(self.data[0].values), None)
 
     def _assign_data_to_clusters(self):
         for j in range(len(self.data)):
@@ -90,5 +88,4 @@ class KMeans:
             if distance(self.clusters[i].centroid.position.values,
                         self.clusters[i].previous_centroid.position.values) > self.absoluteTolerance:
                 result = False
-
         return result

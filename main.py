@@ -4,9 +4,9 @@ from Kohonen.Kohonen import Kohonen
 kmeans_algorithm = KMeans(3)
 kmeans_algorithm.initialize_data("Seeds.csv")
 kmeans_algorithm.initialize_centroids()
-kmeans_algorithm.algorithm(2)
+kmeans_algorithm.algorithm()
 
 kohonen_algorithm = Kohonen(3)
-kohonen_algorithm.initialize_data("Seeds.csv")
+kohonen_algorithm.initialize_data("Iris.csv")
 kohonen_algorithm.initialize_neurons()
-kohonen_algorithm.algorithm(2)
+kohonen_algorithm.algorithm()

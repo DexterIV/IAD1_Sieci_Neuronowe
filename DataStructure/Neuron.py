@@ -1,5 +1,5 @@
 class Neuron:
 
-    def __init__(self, position, data_instance):
+    def __init__(self, position, weights):
         self.position = position
-        self.weights = data_instance.values
+        self.weights = weights
