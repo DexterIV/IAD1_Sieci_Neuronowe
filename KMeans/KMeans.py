@@ -7,7 +7,7 @@ import numpy
 
 
 class KMeans:
-    def __init__(self, number_of_clusters=3, max_iterations=64, absolute_tolerance=0.000001,
+    def __init__(self, number_of_clusters=3, max_iterations=64, absolute_tolerance=0.001,
                  little_data_threshold=0.015):
         self.clusters = []
         self.numberOfClusters = number_of_clusters

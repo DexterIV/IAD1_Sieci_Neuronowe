@@ -72,7 +72,7 @@ def plot_all_clusters(clusters, iteration, window_name, number_of_attributes, ne
     if number_of_attributes % 2 == 1:
         number_of_subplots += 0.5
     for i in range(0, number_of_attributes, 2):
-        pyplot.suptitle('iteration no. ' + str(iteration + 1))
+        pyplot.suptitle(window_name + ' iteration no. ' + str(iteration + 1))
         pyplot.subplot(math.sqrt(number_of_subplots), 2, i / 2 + 1)
         for j in range(len(clusters)):
             if number_of_attributes == i + 1:

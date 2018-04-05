@@ -7,7 +7,7 @@ import math
 
 
 class Kohonen:
-    def __init__(self, number_of_neurons=6, max_iterations=500, learning_grade=0.5, _lambda=20,
+    def __init__(self, number_of_neurons=3, max_iterations=64, learning_grade=0.5, _lambda=20,
                  neighbourhood_radius=1.5, absolute_tolerance=0.0001):
         self.numberOfNeurons = number_of_neurons
         self.maxIterations = max_iterations
