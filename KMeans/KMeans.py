@@ -6,7 +6,7 @@ import pandas as pd
 
 
 class KMeans:
-    def __init__(self, number_of_clusters=3, max_iterations=64, absolute_tolerance=0.000001,
+    def __init__(self, number_of_clusters=3, image=False, max_iterations=16, absolute_tolerance=0.001,
                  little_data_threshold=0.015):
         self.clusters = []
         self.numberOfClusters = number_of_clusters
@@ -14,21 +14,26 @@ class KMeans:
         self.absoluteTolerance = absolute_tolerance
         self.data = []
         self.littleDataThreshold = little_data_threshold
+        self.image = image
 
     def initialize_data(self, filename):
-        self.data.clear ()
-        dataset = pd.read_csv (filename)
+        self.data.clear()
+        dataset = pd.read_csv(filename)
         number_of_columns = len (dataset.columns)
         data_attributes = []
 
         for i in range (1, number_of_columns - 1):
-            data_attributes.append (dataset.iloc[:, i].values)
+            data_attributes.append(dataset.iloc[:, i].values)
 
         for i in range (len (data_attributes[0])):
             values = []
             for j in range (len (data_attributes)):
                 values.append (data_attributes[j][i])
             self.data.append (Data (values))
+
+    def initialize_data_with_chunks(self, chunks):
+        for i in range(len(chunks)):
+            self.data.append(Data(convert_3d_to_1d_list(chunks[i])))
 
     def initialize_centroids(self):
         for i in range(self.numberOfClusters):
@@ -44,9 +49,12 @@ class KMeans:
             self._assign_data_to_clusters()
             self._move_centroids()
             self._reassign_clusters_with_little_data()
+            print(i)
             if self._second_stop_condition():
                 break
-        plot_all_clusters(self.clusters, i, 'KMeans algorithm', len(self.data[0].values), None)
+        if not self.image:
+            plot_all_clusters(self.clusters, i, 'KMeans algorithm', len(self.data[0].values), None)
+        return self.clusters
 
     def _assign_data_to_clusters(self):
         for j in range(len(self.data)):
@@ -61,9 +69,10 @@ class KMeans:
             new_centroid_position.clear()
             new_centroid_position = [0] * len(self.data[0].values)
             for j in range(len(new_centroid_position)):
-                for k in range(len(self.clusters[i].data)):
-                    new_centroid_position[j] += self.clusters[i].data[k].values[j]
-                new_centroid_position[j] /= len(self.clusters[i].data)
+                if len(self.clusters[i].data) != 0:
+                    for k in range(len(self.clusters[i].data)):
+                        new_centroid_position[j] += self.clusters[i].data[k].values[j]
+                    new_centroid_position[j] /= len(self.clusters[i].data)
             copy_values(new_centroid_position, self.clusters[i].centroid.position.values)
 
     def _reassign_clusters_with_little_data(self):
@@ -85,7 +94,8 @@ class KMeans:
     def _second_stop_condition(self):
         result = True
         for i in range(self.numberOfClusters):
-            if distance(self.clusters[i].centroid.position.values,
-                        self.clusters[i].previous_centroid.position.values) > self.absoluteTolerance:
+            dist = distance(self.clusters[i].centroid.position.values,
+                            self.clusters[i].previous_centroid.position.values)
+            if dist > self.absoluteTolerance:
                 result = False
         return result

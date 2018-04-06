@@ -17,6 +17,27 @@ def distance(position1, position2):
     return dist
 
 
+def convert_3d_to_1d_list(three_dimensional_list):
+    tmp = []
+    for i in range(len(three_dimensional_list)):
+        for j in range(len(three_dimensional_list[i])):
+            for k in range(len(three_dimensional_list[i][j])):
+                tmp.append(three_dimensional_list[i][j][k])
+    return tmp
+
+
+def convert_1d_list_to_3d_chunk(one_dimensional_list, chunk_size):
+    tmp = []
+    for i in range(chunk_size):
+        tmp1 = []
+        for j in range(chunk_size):
+            tmp2 = (one_dimensional_list[i * 3 + j * 12], one_dimensional_list[i * 3 + j * 12] + 1,
+                    one_dimensional_list[i * 3 + j * 12] + 2)
+            tmp1.append(tmp2)
+        tmp.append(tmp1)
+    return tmp
+
+
 def clear_clusters(clusters):
     for i in range(len(clusters)):
         clusters[i].data.clear()
@@ -89,3 +110,5 @@ def plot_all_clusters(clusters, iteration, window_name, number_of_attributes, ne
                 plot_neurons(neurons, neuron_colors, i, i + 1)
         pyplot.grid(axis='both', color='black', which='major', linestyle='--', linewidth=1)
     pyplot.show()
+
+
