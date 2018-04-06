@@ -7,7 +7,7 @@ import math
 
 
 class Kohonen:
-    def __init__(self, number_of_neurons=6, max_iterations=32, learning_grade=0.5, _lambda=20,
+    def __init__(self, number_of_neurons=3, max_iterations=64, learning_grade=0.5, _lambda=20,
                  neighbourhood_radius=1.5, absolute_tolerance=0.0001):
         self.numberOfNeurons = number_of_neurons
         self.maxIterations = max_iterations
@@ -20,17 +20,23 @@ class Kohonen:
         self.wage_lambda = _lambda
         self.absolute_tolerance = absolute_tolerance
         self.saved_neurons = []
+        self.dataLabels = []
 
     def initialize_data(self, filename):
         self.data.clear()
-        dataset = pd.read_csv(filename)
-        number_of_columns = len(dataset.columns)
+        dataset_tmp = pd.read_csv(filename, header=None)
+        number_of_columns = len(dataset_tmp.columns)
         data_attributes = []
+
+        for i in range(1, number_of_columns - 1):
+            self.dataLabels.append(dataset_tmp[i][0])
+
+        dataset = pd.read_csv(filename)
 
         for i in range(1, number_of_columns - 1):
             data_attributes.append(dataset.iloc[:, i].values)
 
-        for i in range(len(data_attributes[0])):
+        for i in range(1, len(data_attributes[0])):
             values = []
             for j in range(len(data_attributes)):
                 values.append(data_attributes[j][i])
@@ -64,7 +70,7 @@ class Kohonen:
             if self._second_stop_condition(i):
                 break
         plot_all_clusters(self._define_clusters_for_plotting(), i, 'Kohonen\'s self-organizing map',
-                          len(self.data[0].values), self.saved_neurons)
+                          len(self.data[0].values), self.saved_neurons, self.dataLabels)
 
     def _calculate_new_weights(self, neuron, bmu, sample):
         if neuron == bmu:
@@ -75,7 +81,7 @@ class Kohonen:
             if dist < self.neighbourhood_radius:
                 for i in range(len(neuron.weights)):
                     neuron.weights[i] += self.learning_grade * (sample.values[i] - neuron.weights[i]) * \
-                                        self._weight_function(dist)
+                                         self._weight_function(dist)
 
     def _find_minimum_distance(self, data_instance):
         index = 0
