@@ -7,7 +7,7 @@ import numpy
 
 
 class KMeans:
-    def __init__(self, number_of_clusters=3, max_iterations=64, absolute_tolerance=0.000001,
+    def __init__(self, number_of_clusters=3, show_plots=False, max_iterations=64, absolute_tolerance=0.000001,
                  little_data_threshold=0.015):
         self.clusters = []
         self.numberOfClusters = number_of_clusters
@@ -15,7 +15,7 @@ class KMeans:
         self.absoluteTolerance = absolute_tolerance
         self.data = []
         self.littleDataThreshold = little_data_threshold
-        self.image = image
+        self.show_plots = show_plots
         self.dataLabels = []
 
     def initialize_data(self, filename):
@@ -58,10 +58,9 @@ class KMeans:
             self._reassign_clusters_with_little_data()
             if self._second_stop_condition():
                 break
-        if not self.image:
+        if not self.show_plots:
             plot_all_clusters(self.clusters, i, 'KMeans algorithm', len(self.data[0].values), None, self.dataLabels)
         return self.clusters
-        plot_all_clusters(self.clusters, i, 'KMeans algorithm', len(self.data[0].values), None, self.dataLabels)
 
     def _assign_data_to_clusters(self):
         for j in range(len(self.data)):
