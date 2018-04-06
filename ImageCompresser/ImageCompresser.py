@@ -6,9 +6,11 @@ import scipy.misc as smp
 
 
 class ImageCompresser:
-    def __init__(self, filename="lenna-uscsipi.png", chunk_size=4):
+    def __init__(self, kmeans_clusters=64, kmeans_iterations=128, filename="lenna-uscsipi.png", chunk_size=4):
         self.dictionary = []        # its called dictionary but its actually a list
         self.chunks = []
+        self.kmeans_clusters = kmeans_clusters
+        self.kmeans_iterations = kmeans_iterations
         self.image = Image.open(filename)
         self.pixels = self.image.load()
         self.chunk_size = chunk_size
@@ -17,17 +19,12 @@ class ImageCompresser:
             raise ValueError
 
     def algorithm(self):
-        #fill dictionary
-        #for every chunk find closest element from dictionary
-        #save it into compressed array
-        #save as new file
         self._read_chunks()
         self._fill_dictionary()
         print(self.dictionary)
         for i in range(len(self.chunks)):
             best_matching_dict_chunk = self._find_closest_entry_in_dictionary(self.chunks[i])
             self.compressed.append(best_matching_dict_chunk)
-            print(i)
         new_pixels = self._save_chunks_as_pixels()
         img = smp.toimage(new_pixels)
         img.show()
@@ -35,7 +32,6 @@ class ImageCompresser:
 
     def _read_chunks(self):
         width, height = self.image.size
-
         for width_iter in range(0, width, self.chunk_size):
             for height_iter in range(0, height, self.chunk_size):
                 chunk = []
@@ -47,7 +43,7 @@ class ImageCompresser:
                 self.chunks.append(chunk)
 
     def _fill_dictionary(self):
-        kmeans = KMeans(32, True)
+        kmeans = KMeans(self.kmeans_clusters, True, self.kmeans_iterations)
         kmeans.initialize_data_with_chunks(self.chunks)
         kmeans.initialize_centroids()
         clusters = kmeans.algorithm()

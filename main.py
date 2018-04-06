@@ -13,5 +13,5 @@ kohonen_algorithm = Kohonen()
 #kohonen_algorithm.initialize_neurons()
 #kohonen_algorithm.algorithm()
 
-compress = ImageCompresser()
+compress = ImageCompresser(512, 128)
 compress.algorithm()
