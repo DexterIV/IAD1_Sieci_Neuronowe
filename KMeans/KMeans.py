@@ -7,7 +7,7 @@ import numpy
 
 
 class KMeans:
-    def __init__(self, number_of_clusters=3, show_plots=False, max_iterations=64, absolute_tolerance=0.000001,
+    def __init__(self, number_of_clusters=3, show_plots=True, max_iterations=64, absolute_tolerance=0.000001,
                  little_data_threshold=0.015):
         self.clusters = []
         self.numberOfClusters = number_of_clusters
@@ -52,14 +52,17 @@ class KMeans:
     def algorithm(self):
         i = 0
         for i in range(self.maxIterations):
-            clear_clusters(self.clusters)
+            self._clear_clusters(self.clusters)
             self._assign_data_to_clusters()
             self._move_centroids()
-            self._reassign_clusters_with_little_data()
+            if i % 8 == 0:
+                self._reassign_clusters_with_little_data()
+            print(i)
             if self._second_stop_condition():
                 break
-        if not self.show_plots:
+        if self.show_plots:
             plot_all_clusters(self.clusters, i, 'KMeans algorithm', len(self.data[0].values), None, self.dataLabels)
+        self._average_distance_from_centroid()
         return self.clusters
 
     def _assign_data_to_clusters(self):
@@ -69,8 +72,7 @@ class KMeans:
 
     def _move_centroids(self):
         for i in range(len(self.clusters)):
-            copy_values(self.clusters[i].centroid.position.values,
-                        self.clusters[i].previous_centroid.position.values)
+            self.clusters[i].previous_centroid.position.values = numpy.copy(self.clusters[i].centroid.position.values)
             new_centroid_position = []
             new_centroid_position.clear()
             new_centroid_position = [0] * len(self.data[0].values)
@@ -79,7 +81,10 @@ class KMeans:
                     for k in range(len(self.clusters[i].data)):
                         new_centroid_position[j] += self.clusters[i].data[k].values[j]
                     new_centroid_position[j] /= len(self.clusters[i].data)
-            copy_values(new_centroid_position, self.clusters[i].centroid.position.values)
+                else:
+                    import random
+                    self.clusters[i].centroid.position = self.data[random.randint(0, len (self.data) - 1)]
+            self.clusters[i].centroid.position.values = numpy.copy(new_centroid_position)
 
     def _reassign_clusters_with_little_data(self):
         import random
@@ -89,9 +94,9 @@ class KMeans:
 
     def _find_minimum_distance(self, data_instance):
         index = 0
-        minimum = distance(data_instance.values, self.clusters[index].centroid.position.values)
+        minimum = distance_for_comparison(data_instance.values, self.clusters[index].centroid.position.values)
         for i in range(1, len(self.clusters)):
-            dist = distance(self.clusters[i].centroid.position.values, data_instance.values)
+            dist = distance_for_comparison(self.clusters[i].centroid.position.values, data_instance.values)
             if dist < minimum:
                 minimum = dist
                 index = i
@@ -100,8 +105,18 @@ class KMeans:
     def _second_stop_condition(self):
         result = True
         for i in range(self.numberOfClusters):
-            dist = distance(self.clusters[i].centroid.position.values,
-                            self.clusters[i].previous_centroid.position.values)
+            dist = distance_for_comparison(self.clusters[i].centroid.position.values,
+                                           self.clusters[i].previous_centroid.position.values)
             if dist > self.absoluteTolerance:
                 result = False
         return result
+
+    def _clear_clusters(self):
+        for i in range(len(self.clusters)):
+            self.clusters[i].data.clear()
+
+    def _average_distance_from_centroid(self):
+        for i in range(len(self.clusters)):
+            for j in range(len(self.clusters[i].data)):
+                self.clusters[i].error += distance(self.clusters[i].data[j].values, self.clusters[i].centroid.postition.values)
+            self.clusters[i].error /= len(self.clusters[i])

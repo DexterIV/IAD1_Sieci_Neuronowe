@@ -13,5 +13,5 @@ kohonen_algorithm = Kohonen()
 #kohonen_algorithm.initialize_neurons()
 #kohonen_algorithm.algorithm()
 
-compress = ImageCompresser(512, 128)
+compress = ImageCompresser(32, 8, "Lenna.png", "testON.png")
 compress.algorithm()

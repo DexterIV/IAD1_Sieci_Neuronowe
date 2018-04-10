@@ -85,9 +85,9 @@ class Kohonen:
 
     def _find_minimum_distance(self, data_instance):
         index = 0
-        minimum = distance(data_instance.values, self.neurons[0].weights)
+        minimum = distance_for_comparison(data_instance.values, self.neurons[0].weights)
         for i in range(1, len(self.neurons)):
-            dist = distance(self.neurons[i].weights, data_instance.values)
+            dist = distance_for_comparison(self.neurons[i].weights, data_instance.values)
             if dist < minimum:
                 minimum = dist
                 index = i
@@ -113,7 +113,7 @@ class Kohonen:
     def _second_stop_condition(self, iteration):
         result = True
         for i in range(len(self.neurons)):
-            if distance(self.neurons[i].weights,
-                        self.saved_neurons[iteration][i].weights) > self.absolute_tolerance:
+            if distance_for_comparison(self.neurons[i].weights,
+                                       self.saved_neurons[iteration][i].weights) > self.absolute_tolerance:
                 result = False
         return result

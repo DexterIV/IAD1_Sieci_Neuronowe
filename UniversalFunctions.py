@@ -1,17 +1,33 @@
 import matplotlib.pyplot as pyplot
 import math
+# from numba import vectorize
 
 
-def copy_values(source, target):
-    for i in range(len(source)):
-        target[i] = source[i]
+# @vectorize(['float32(float32, float32, float32)'], target='cuda')
+def dist_add_pow(a, b, res):
+    return res + ((a - b) ** 2)
+
+
+def distance_for_comparison(position1, position2):
+    dist = 0
+
+    if len(position1) != len(position2):
+        raise ValueError
+
+    for i in range(len(position1)):
+        dist = dist_add_pow(position1[i], position2[i], dist)
+
+    return dist
 
 
 def distance(position1, position2):
     dist = 0
 
+    if len(position1) != len(position2):
+        return 0
+
     for i in range(len(position1)):
-        dist += (position1[i] - position2[i]) ** 2
+        dist = dist_add_pow(position1[i], position2[i], dist)
 
     dist = math.sqrt(dist)
     return dist
@@ -21,8 +37,11 @@ def convert_3d_to_1d_list(three_dimensional_list):
     tmp = []
     for i in range(len(three_dimensional_list)):
         for j in range(len(three_dimensional_list[i])):
-            for k in range(len(three_dimensional_list[i][j])):
-                tmp.append(three_dimensional_list[i][j][k])
+            if isinstance(three_dimensional_list[i][j], tuple):
+                for k in range(len(three_dimensional_list[i][j])):
+                    tmp.append(three_dimensional_list[i][j][k])
+            else:
+                tmp.append(three_dimensional_list[i][j])
     return tmp
 
 
@@ -31,16 +50,14 @@ def convert_1d_list_to_3d_chunk(one_dimensional_list, chunk_size):
     for i in range(chunk_size):
         tmp1 = []
         for j in range(chunk_size):
-            tmp2 = (one_dimensional_list[i * 3 + j * 12], one_dimensional_list[i * 3 + j * 12] + 1,
-                    one_dimensional_list[i * 3 + j * 12] + 2)
+            tmp2 = (one_dimensional_list[i * 3 + j * 12], one_dimensional_list[i * 3 + j * 12 + 1],
+                    one_dimensional_list[i * 3 + j * 12 + 2])
             tmp1.append(tmp2)
         tmp.append(tmp1)
     return tmp
 
 
-def clear_clusters(clusters):
-    for i in range(len(clusters)):
-        clusters[i].data.clear()
+
 
 
 def plot_neurons_path(neurons, color, value_x_index, value_y_index):
@@ -61,7 +78,7 @@ def plot_centroid(cluster, color, value_x_index, value_y_index):
                 color, marker='o')
 
 
-def plot_cluster(clusters, color, neuron_color, value_x_index, value_y_index, neurons, index, xLabel, yLabel):
+def plot_cluster(clusters, color, value_x_index, value_y_index, index, xLabel, yLabel):
     x = []
     y = []
     for j in range(len(clusters[index].data)):
@@ -97,9 +114,9 @@ def plot_all_clusters(clusters, iteration, window_name, number_of_attributes, ne
         pyplot.subplot(math.sqrt(number_of_subplots), 2, i / 2 + 1)
         for j in range(len(clusters)):
             if number_of_attributes == i + 1:
-                plot_cluster(clusters, colors[j], neuron_colors[j], i - 1, i, neurons, j, labels[i - 1], labels[i])
+                plot_cluster(clusters, colors[j], i - 1, i, j, labels[i - 1], labels[i])
             else:
-                plot_cluster(clusters, colors[j], neuron_colors[j], i, i + 1, neurons, j, labels[i], labels[i + 1])
+                plot_cluster(clusters, colors[j], i, i + 1, j, labels[i], labels[i + 1])
         if neurons is None:
             if number_of_attributes == i + 1:
                 plot_centroids(clusters, i - 1, i)
