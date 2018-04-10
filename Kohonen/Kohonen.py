@@ -69,7 +69,9 @@ class Kohonen:
             self._neighbourhood_decay(i)
             if self._second_stop_condition(i):
                 break
-        plot_all_clusters(self._define_clusters_for_plotting(), i, 'Kohonen\'s self-organizing map',
+        clusters = self._define_clusters_for_plotting()
+        self._average_distance_from_neuron(clusters)
+        plot_all_clusters(clusters, i, 'Kohonen\'s self-organizing map',
                           len(self.data[0].values), self.saved_neurons, self.dataLabels)
 
     def _calculate_new_weights(self, neuron, bmu, sample):
@@ -117,3 +119,10 @@ class Kohonen:
                                        self.saved_neurons[iteration][i].weights) > self.absolute_tolerance:
                 result = False
         return result
+
+    @staticmethod
+    def _average_distance_from_neuron(clusters):
+        for i in range(len(clusters)):
+            for j in range(len(clusters[i].data)):
+                clusters[i].error += distance(clusters[i].data[j].values, clusters[i].centroid.postition.values)
+            clusters[i].error /= len(clusters[i])
