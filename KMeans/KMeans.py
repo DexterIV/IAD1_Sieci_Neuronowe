@@ -52,7 +52,7 @@ class KMeans:
     def algorithm(self):
         i = 0
         for i in range(self.maxIterations):
-            self._clear_clusters(self.clusters)
+            self._clear_clusters()
             self._assign_data_to_clusters()
             self._move_centroids()
             if i % 8 == 0:

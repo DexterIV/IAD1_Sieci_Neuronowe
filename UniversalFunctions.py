@@ -33,6 +33,13 @@ def distance(position1, position2):
     return dist
 
 
+def copy_values(source):
+    copy = []
+    for i in range(len(source)):
+        copy.append(source[i])
+    return copy
+
+
 def convert_3d_to_1d_list(three_dimensional_list):
     tmp = []
     for i in range(len(three_dimensional_list)):
@@ -55,9 +62,6 @@ def convert_1d_list_to_3d_chunk(one_dimensional_list, chunk_size):
             tmp1.append(tmp2)
         tmp.append(tmp1)
     return tmp
-
-
-
 
 
 def plot_neurons_path(neurons, color, value_x_index, value_y_index):

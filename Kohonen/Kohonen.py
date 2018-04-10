@@ -106,9 +106,9 @@ class Kohonen:
 
     def _save_neurons(self):
         saved = []
+        import numpy
         for i in range(len(self.neurons)):
-            copy = [0] * len(self.neurons[0].weights)
-            copy_values(self.neurons[i].weights, copy)
+            copy = numpy.copy(self.neurons[i].weights)
             saved.append(Neuron(i, copy))
         self.saved_neurons.append(saved)
 
