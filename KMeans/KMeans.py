@@ -118,5 +118,5 @@ class KMeans:
     def _average_distance_from_centroid(self):
         for i in range(len(self.clusters)):
             for j in range(len(self.clusters[i].data)):
-                self.clusters[i].error += distance(self.clusters[i].data[j].values, self.clusters[i].centroid.postition.values)
-            self.clusters[i].error /= len(self.clusters[i])
+                self.clusters[i].error += distance(self.clusters[i].data[j].values, self.clusters[i].centroid.position.values)
+            self.clusters[i].error /= len(self.clusters)
