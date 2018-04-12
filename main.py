@@ -3,15 +3,15 @@ from Kohonen.Kohonen import Kohonen
 from ImageCompresser.ImageCompresser import ImageCompresser
 
 
-kmeans_algorithm = KMeans()
+#kmeans_algorithm = KMeans()
 #kmeans_algorithm.initialize_data("Iris.csv")
 #kmeans_algorithm.initialize_centroids()
 #kmeans_algorithm.algorithm()
 
-kohonen_algorithm = Kohonen()
-kohonen_algorithm.initialize_data("Seeds.csv")
-kohonen_algorithm.initialize_neurons()
-kohonen_algorithm.algorithm()
+#kohonen_algorithm = Kohonen()
+#kohonen_algorithm.initialize_data("Seeds.csv")
+#kohonen_algorithm.initialize_neurons()
+#kohonen_algorithm.algorithm()
 
-#compress = ImageCompresser(32, 8, "Lenna.png", "testON.png")
-#compress.algorithm()
+compress = ImageCompresser(32, 32, "SourceImages\iris.png", "Iris32neur32iter.png")
+compress.algorithm()
