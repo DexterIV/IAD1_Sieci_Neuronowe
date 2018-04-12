@@ -13,5 +13,5 @@ from ImageCompresser.ImageCompresser import ImageCompresser
 #kohonen_algorithm.initialize_neurons()
 #kohonen_algorithm.algorithm()
 
-compress = ImageCompresser(128, 32, "SourceImages\Chair.png", "ResultImages\Chair128neur32iter.png")
+compress = ImageCompresser(64, 32, "SourceImages\Chair.png", "ResultImages\Chair64neur32iter.png")
 compress.algorithm()
