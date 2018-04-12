@@ -120,9 +120,9 @@ class Kohonen:
                 result = False
         return result
 
-    @staticmethod
-    def _average_distance_from_neuron(clusters):
+
+    def _average_distance_from_neuron(self, clusters):
         for i in range(len(clusters)):
             for j in range(len(clusters[i].data)):
-                clusters[i].error += distance(clusters[i].data[j].values, clusters[i].centroid.postition.values)
-            clusters[i].error /= len(clusters[i])
+                clusters[i].error += distance(clusters[i].data[j].values, self.neurons[i].weights)
+            clusters[i].error /= len(clusters[i].data)
