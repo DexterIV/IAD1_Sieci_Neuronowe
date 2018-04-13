@@ -119,4 +119,5 @@ class KMeans:
         for i in range(len(self.clusters)):
             for j in range(len(self.clusters[i].data)):
                 self.clusters[i].error += distance(self.clusters[i].data[j].values, self.clusters[i].centroid.position.values)
-            self.clusters[i].error /= len(self.clusters[i].data)
+            if len(self.clusters[i].data) != 0:
+                self.clusters[i].error /= len(self.clusters[i].data)
