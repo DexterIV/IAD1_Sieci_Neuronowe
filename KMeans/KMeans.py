@@ -17,6 +17,7 @@ class KMeans:
         self.littleDataThreshold = little_data_threshold
         self.show_plots = show_plots
         self.dataLabels = []
+        self.sumerror = 0
 
     def initialize_data(self, filename):
         self.data.clear()
@@ -121,3 +122,8 @@ class KMeans:
                 self.clusters[i].error += distance(self.clusters[i].data[j].values, self.clusters[i].centroid.position.values)
             if len(self.clusters[i].data) != 0:
                 self.clusters[i].error /= len(self.clusters[i].data)
+
+    def show_error(self):
+        for i in range(len(self.clusters)):
+            self.sumerror += self.clusters[i].error
+        print("Error = " + str(self.sumerror) + "\n")

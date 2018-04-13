@@ -120,9 +120,13 @@ class Kohonen:
                 result = False
         return result
 
-
     def _average_distance_from_neuron(self, clusters):
         for i in range(len(clusters)):
             for j in range(len(clusters[i].data)):
                 clusters[i].error += distance(clusters[i].data[j].values, self.neurons[i].weights)
             clusters[i].error /= len(clusters[i].data)
+
+        sumerror = 0
+        for i in range(len(clusters)):
+            sumerror += clusters[i].error
+        print("Error Kohonen = " + str(sumerror) + "\n")
